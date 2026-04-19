@@ -1,0 +1,221 @@
+CREATE TABLE RAW_MATERIALS (
+    MAT_ID INT PRIMARY KEY,  
+    M_NAME VARCHAR(50) NOT NULL UNIQUE,
+    SUPPLIER VARCHAR(60) NOT NULL,
+    COST MONEY CHECK (COST > 0) 
+);
+
+INSERT INTO RAW_MATERIALS (MAT_ID, M_NAME, SUPPLIER, COST) VALUES
+(1,'Steel', 'Messebo Cement Factory', 12345.50),
+(2,'Plastic', 'Ethio-Plastics PLC', 6780.75),
+(3,'Rubber', 'Addis Rubber Factory', 4320.25),
+(4,'Glass', 'National Glass Factory', 9870.00),
+(5,'Copper', 'Ethio Engineering Group', 15430.80),
+(6,'Aluminum', 'Akal Aluminum Manufacturing', 11200.60),
+(7,'Wood', 'Ethio Forest Products Enterprise', 7650.40),
+(8,'Leather', 'Sheba Leather Industry', 20350.00),
+(9,'Fabric', 'Bahir Dar Textile Share Company', 5400.30),
+(10,'Silicon', 'Ethio ICT Manufacturing PLC', 27650.90);
+
+
+CREATE TABLE PRODUCTT (
+    PRODUCT_ID INT PRIMARY KEY,
+    P_NAME VARCHAR(50) NOT NULL UNIQUE,
+    COST MONEY CHECK (COST > 0),
+    PRICE MONEY CHECK (PRICE > 0)
+);
+
+INSERT INTO PRODUCTT VALUES
+(1,'Laptop',45000,75000),
+(2,'Phone',25000,50000),
+(3,'Tablet',20000,40000),
+(4,'Monitor',15000,30000),
+(5,'Keyboard',5000,12000),
+(6,'Mouse',3000,9000),
+(7,'Printer',12000,25000),
+(8,'Router',8000,16000),
+(9,'Headphones',4000,10000),
+(10,'Webcam',3500,8000);
+
+
+CREATE TABLE PRODUCTION_ORDER (
+    PORD_ID INT PRIMARY KEY,
+    QUANTITY INT CHECK (QUANTITY > 0),
+    PRODUCT_ID INT NOT NULL,
+    STATUSS VARCHAR(30) CH   ECK (STATUSS IN ('Pending','In Progress','Completed')),
+    FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTT(PRODUCT_ID)
+);
+
+INSERT INTO PRODUCTION_ORDER VALUES
+(1,100,1,'Pending'),
+(2,200,2,'In Progress'),
+(3,150,3,'Completed'),
+(4,80,4,'Pending'),
+(5,300,5,'Completed'),
+(6,400,6,'In Progress'),
+(7,60,7,'Pending'),
+(8,90,8,'Completed'),
+(9,120,9,'In Progress'),
+(10,75,10,'Pending');
+
+
+
+CREATE TABLE CUSTOMER (
+    C_ID INT PRIMARY KEY,
+    C_NAME VARCHAR(50) NOT NULL,
+    TYPEE VARCHAR(30) CHECK (TYPEE IN ('Retail','Wholesale'))
+);
+
+INSERT INTO CUSTOMER VALUES
+(1,'Shoa Supermarket','Retail'),
+(2,'Ethio Telecom','Wholesale'),
+(3,'Zemen Bank','Retail'),
+(4,'Dashen Bank','Wholesale'),
+(5,'Friendship Supermarket','Retail'),
+(6,'MIDROC Ethiopia','Wholesale'),
+(7,'Kaldis Coffee','Retail'),
+(8,'East Africa Bottling SC','Wholesale'),
+(9,'Hello Market','Retail'),
+(10,'Ethiopian Airlines','Wholesale');
+
+
+
+CREATE TABLE WAREHOUSE (
+    WARE_ID INT PRIMARY KEY,
+    W_NAME VARCHAR(50) NOT NULL UNIQUE,
+    LOCATIONN VARCHAR(50) NOT NULL
+);
+
+INSERT INTO WAREHOUSE VALUES
+(1,'Addis Central Warehouse','Addis Ababa'),
+(2,'Adama Distribution Center','Adama'),
+(3,'Bahir Dar Storage Hub','Bahir Dar'),
+(4,'Hawassa Logistics Center','Hawassa'),
+(5,'Jimma Supply Depot','Jimma'),
+(6,'Dire Dawa Transit Warehouse','Dire Dawa'),
+(7,'Mekelle Regional Store','Mekelle'),
+(8,'Debre Markos Stock Point','Debre Markos'),
+(9,'Shashamane Main Storage','Shashamane'),
+(10,'Nekemte Overflow Warehouse','Nekemte');
+
+
+
+CREATE TABLE INVENTORY (
+    PRODUCT_ID INT,
+    WARE_ID INT,
+    QUANTITY INT CHECK (QUANTITY >= 0),
+    PRIMARY KEY (PRODUCT_ID, WARE_ID),
+    FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTT(PRODUCT_ID),
+    FOREIGN KEY (WARE_ID) REFERENCES WAREHOUSE(WARE_ID)
+);
+
+INSERT INTO INVENTORY VALUES
+(1,1,50),
+(2,1,70),
+(3,2,40),
+(4,2,30),
+(5,3,200),
+(6,3,180),
+(7,4,25),
+(8,4,60),
+(9,5,90),
+(10,5,110);
+
+
+
+CREATE TABLE SALES (
+    SALES_ID INT PRIMARY KEY,
+    C_ID INT NOT NULL,
+    ORDERDATE DATE NOT NULL,
+    TOTAL MONEY CHECK (TOTAL >= 0),
+    FOREIGN KEY (C_ID) REFERENCES CUSTOMER(C_ID)
+);
+
+INSERT INTO SALES VALUES
+(1,1,'2025-01-01',120000),
+(2,2,'2025-01-02',300000),
+(3,3,'2025-01-03',90000),
+(4,4,'2025-01-04',150000),
+(5,5,'2025-01-05',70000),
+(6,6,'2025-01-06',420000),
+(7,7,'2025-01-07',85000),
+(8,8,'2025-01-08',260000),
+(9,9,'2025-01-09',110000),
+(10,10,'2025-01-10',500000);
+
+
+
+CREATE TABLE SALES_ORDER_ITEM (
+    SALES_ID INT,
+    PRODUCT_ID INT,
+    QUANTITY INT CHECK (QUANTITY > 0),
+    PRICE MONEY CHECK (PRICE > 0),
+    PRIMARY KEY (SALES_ID, PRODUCT_ID),
+    FOREIGN KEY (SALES_ID) REFERENCES SALES(SALES_ID),
+    FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTT(PRODUCT_ID)
+);
+
+INSERT INTO SALES_ORDER_ITEM VALUES
+(1,1,1,75000),
+(2,2,5,50000),
+(3,3,2,40000),
+(4,4,3,30000),
+(5,5,10,12000),
+(6,6,20,9000),
+(7,7,1,25000),
+(8,8,4,16000),
+(9,9,6,10000),
+(10,10,8,8000);
+
+
+
+CREATE TABLE SHIPMENT (
+    SHIP_ID INT PRIMARY KEY,
+    SALES_ID INT NOT NULL,
+    WARE_ID INT NOT NULL,
+    SHIP_DATE DATE NOT NULL,
+    FOREIGN KEY (SALES_ID) REFERENCES SALES(SALES_ID),
+    FOREIGN KEY (WARE_ID) REFERENCES WAREHOUSE(WARE_ID)
+);
+
+INSERT INTO SHIPMENT VALUES
+(1,1,1,'2025-01-02'),
+(2,2,2,'2025-01-03'),
+(3,3,3,'2025-01-04'),
+(4,4,4,'2025-01-05'),
+(5,5,5,'2025-01-06'),
+(6,6,6,'2025-01-07'),
+(7,7,7,'2025-01-08'),
+(8,8,8,'2025-01-09'),
+(9,9,9,'2025-01-10'),
+(10,10,10,'2025-01-11');
+
+CREATE TABLE AUTH (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    Username NVARCHAR(50) UNIQUE NOT NULL,
+    Password NVARCHAR(255) NOT NULL,
+    Role NVARCHAR(20) NOT NULL CHECK (Role IN ('Admin', 'User'))
+);
+
+
+SELECT * FROM RAW_MATERIALS;
+SELECT * FROM PRODUCTT;
+SELECT * FROM PRODUCTION_ORDER;
+SELECT * FROM CUSTOMER;
+SELECT * FROM WAREHOUSE;
+SELECT * FROM INVENTORY;
+SELECT * FROM SALES;
+SELECT * FROM SALES_ORDER_ITEM;
+SELECT * FROM SHIPMENT;
+SELECT * FROM AUTH
+
+DROP TABLE IF EXISTS SHIPMENT;
+DROP TABLE IF EXISTS SALES_ORDER_ITEM;
+DROP TABLE IF EXISTS SALES;
+DROP TABLE IF EXISTS INVENTORY;
+DROP TABLE IF EXISTS PRODUCTION_ORDER;
+DROP TABLE IF EXISTS CUSTOMER;
+DROP TABLE IF EXISTS WAREHOUSE;
+DROP TABLE IF EXISTS PRODUCTT;
+DROP TABLE IF EXISTS RAW_MATERIALS;
+
